@@ -116,12 +116,12 @@ class RetrieveHass:
                 try:
                     response = get(url, headers=headers)
                 except Exception:
-                    self.logger.error("Unable to access Home Assistance instance, check url")
+                    self.logger.error("Unable to access Home Assistance instance, check URL")
                     self.logger.error("If using addon, try setting url and token to 'empty'")
                     return False
                 else:
                     if response.status_code == 401:
-                        self.logger.error("Unable to access Home Assistance instance, token/key")
+                        self.logger.error("Unable to access Home Assistance instance, TOKEN/KEY")
                         self.logger.error("If using addon, try setting url and token to 'empty'")
                         return False
                     if response.status_code > 299:
