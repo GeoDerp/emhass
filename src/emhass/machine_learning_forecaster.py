@@ -142,6 +142,7 @@ class MLForecaster:
             base_model = KNeighborsRegressor()
         else:
             self.logger.error("Passed sklearn model "+self.sklearn_model+" is not valid")
+            return False, False
         # Define the forecaster object
         self.forecaster = ForecasterAutoreg(
             regressor = base_model,

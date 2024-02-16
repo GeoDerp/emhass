@@ -136,14 +136,14 @@ class RetrieveHass:
                     if x is 0:
                         self.logger.error("The retrieved JSON is empty, A sensor:" + var + " may have 0 days of history or passed sensor may not be correct")
                     else:
-                        self.logger.error("The retrieved JSON is empty, days_to_retrieve is larger than the recorded history of sensor:" + var + "  (check your recorder settings)")
+                        self.logger.error("The retrieved JSON is empty, days_to_retrieve may be larger than the recorded history of sensor:" + var + "  (check your recorder settings)")
                     return False
                 df_raw = pd.DataFrame.from_dict(data)
                 if len(df_raw) == 0:
                     if x is 0:
                         self.logger.error("The retrieved Dataframe is empty, A sensor:" + var + " may have 0 days of history or passed sensor may not be correct")
                     else:
-                        self.logger.error("Retrieved empty Dataframe, days_to_retrieve is larger than the recorded history of sensor:" + var + "  (check your recorder settings)")
+                        self.logger.error("Retrieved empty Dataframe, days_to_retrieve may be larger than the recorded history of sensor:" + var + "  (check your recorder settings)")
                     return False
                 if i == 0: # Defining the DataFrame container
                     from_date = pd.to_datetime(df_raw['last_changed'], format="ISO8601").min()
@@ -162,10 +162,9 @@ class RetrieveHass:
             x += 1
             self.df_final = pd.concat([self.df_final, df_day], axis=0)
         self.df_final = set_df_index_freq(self.df_final)
-        if self.df_final.index.freq != self.freq:
+        if (self.df_final.index.freq != self.freq) or (isinstance(self.df_final,bool) and not self.df_final):
             self.logger.error("The inferred freq from data is not equal to the defined freq in passed parameters")
             return False
-        return True
     
     def prepare_data(self, var_load: str, load_negative: Optional[bool] = False, set_zero_min: Optional[bool] = True,
                      var_replace_zero: Optional[list] = None, var_interp: Optional[list] = None) -> None:
@@ -233,7 +232,6 @@ class RetrieveHass:
             self.df_final.index = self.df_final.index.tz_convert(self.time_zone)
         # Drop datetimeindex duplicates on final DF
         self.df_final = self.df_final[~self.df_final.index.duplicated(keep='first')]
-        return True
     
     @staticmethod
     def get_attr_data_dict(data_df: pd.DataFrame, idx: int, entity_id: str, 

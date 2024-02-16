@@ -57,15 +57,23 @@ def set_input_data_dict(config_path: pathlib.Path, base_path: str, costfun: str,
     params, retrieve_hass_conf, optim_conf, plant_conf = utils.treat_runtimeparams(
         runtimeparams, params, retrieve_hass_conf, 
         optim_conf, plant_conf, set_type, logger)
+    if isinstance(params,bool) and isinstance(retrieve_hass_conf,bool) and isinstance(optim_conf,bool) and isinstance(plant_conf,bool):
+        return False
     # Define main objects
     rh = RetrieveHass(retrieve_hass_conf['hass_url'], retrieve_hass_conf['long_lived_token'], 
                        retrieve_hass_conf['freq'], retrieve_hass_conf['time_zone'], 
                        params, base_path, logger, get_data_from_file=get_data_from_file)
+    if isinstance(rh,bool) and not rh:
+        return False
     fcst = Forecast(retrieve_hass_conf, optim_conf, plant_conf,
                     params, base_path, logger, get_data_from_file=get_data_from_file)
+    if isinstance(fcst,bool) and not fcst:
+        return False
     opt = Optimization(retrieve_hass_conf, optim_conf, plant_conf, 
                        fcst.var_load_cost, fcst.var_prod_price, 
                        costfun, base_path, logger)
+    if isinstance(opt,bool) and not opt:
+        return False
     # Perform setup based on type of action
     if set_type == "perfect-optim":
         # Retrieve data from hass
@@ -74,6 +82,8 @@ def set_input_data_dict(config_path: pathlib.Path, base_path: str, costfun: str,
                 rh.df_final, days_list, var_list = pickle.load(inp)
         else:
             days_list = utils.get_days_list(retrieve_hass_conf['days_to_retrieve'])
+            if isinstance(days_list,bool) and not days_list:
+                return False
             var_list = [retrieve_hass_conf['var_load'], retrieve_hass_conf['var_PV']]
             if not rh.get_data(days_list, var_list,
                         minimal_response=False, significant_changes_only=False):
@@ -85,7 +95,7 @@ def set_input_data_dict(config_path: pathlib.Path, base_path: str, costfun: str,
             return False
         df_input_data = rh.df_final.copy()
         # What we don't need for this type of action
-        P_PV_forecast, P_load_forecast, df_input_data_dayahead = None, None, None
+        P_PV_forecast, P_load_forecast, df_input_data_dayahead = None, None, None       
     elif set_type == "dayahead-optim":
         # Get PV and load forecasts
         df_weather = fcst.get_weather_forecast(method=optim_conf['weather_forecast_method'])
@@ -98,12 +108,15 @@ def set_input_data_dict(config_path: pathlib.Path, base_path: str, costfun: str,
                                               index=P_PV_forecast.index,
                                               columns=['P_PV_forecast', 'P_load_forecast'])
         df_input_data_dayahead = utils.set_df_index_freq(df_input_data_dayahead)
+        if isinstance(df_input_data_dayahead,bool) and not days_list:
+            return False
         params = json.loads(params)
         if 'prediction_horizon' in params['passed_data'] and params['passed_data']['prediction_horizon'] is not None:
             prediction_horizon = params['passed_data']['prediction_horizon']
             df_input_data_dayahead = copy.deepcopy(df_input_data_dayahead)[df_input_data_dayahead.index[0]:df_input_data_dayahead.index[prediction_horizon-1]]
         # What we don't need for this type of action
         df_input_data, days_list = None, None
+        
     elif set_type == "naive-mpc-optim":
         # Retrieve data from hass
         if get_data_from_file:
@@ -111,6 +124,8 @@ def set_input_data_dict(config_path: pathlib.Path, base_path: str, costfun: str,
                 rh.df_final, days_list, var_list = pickle.load(inp)
         else:
             days_list = utils.get_days_list(1)
+            if isinstance(days_list,bool) and not days_list:
+                return False
             var_list = [retrieve_hass_conf['var_load'], retrieve_hass_conf['var_PV']]
             if not rh.get_data(days_list, var_list,
                         minimal_response=False, significant_changes_only=False):
@@ -127,11 +142,14 @@ def set_input_data_dict(config_path: pathlib.Path, base_path: str, costfun: str,
         P_load_forecast = fcst.get_load_forecast(method=optim_conf['load_forecast_method'], set_mix_forecast=True, df_now=df_input_data)
         df_input_data_dayahead = pd.concat([P_PV_forecast, P_load_forecast], axis=1)
         df_input_data_dayahead = utils.set_df_index_freq(df_input_data_dayahead)
+        if isinstance(df_input_data_dayahead,bool) and not days_list:
+            return False
         df_input_data_dayahead.columns = ['P_PV_forecast', 'P_load_forecast']
         params = json.loads(params)
         if 'prediction_horizon' in params['passed_data'] and params['passed_data']['prediction_horizon'] is not None:
             prediction_horizon = params['passed_data']['prediction_horizon']
             df_input_data_dayahead = copy.deepcopy(df_input_data_dayahead)[df_input_data_dayahead.index[0]:df_input_data_dayahead.index[prediction_horizon-1]]
+             
     elif set_type == "forecast-model-fit" or set_type == "forecast-model-predict" or set_type == "forecast-model-tune":
         df_input_data_dayahead = None
         P_PV_forecast, P_load_forecast = None, None
@@ -146,13 +164,15 @@ def set_input_data_dict(config_path: pathlib.Path, base_path: str, costfun: str,
             data_path = pathlib.Path(base_path) / 'data' / filename
             with open(data_path, 'rb') as inp:
                 df_input_data, _ = pickle.load(inp)
-            df_input_data = df_input_data[df_input_data.index[-1] - pd.offsets.Day(days_to_retrieve):]
+            df_input_data = df_input_data[df_input_data.index[-1] - pd.offsets.Day(days_to_retrieve):]           
         else:
             days_list = utils.get_days_list(days_to_retrieve)
+            if isinstance(days_list,bool) and not days_list:
+                return False
             var_list = [var_model]
             if not rh.get_data(days_list, var_list):
                 return False
-            df_input_data = rh.df_final.copy()
+            df_input_data = rh.df_final.copy()         
     elif set_type == "publish-data":
         df_input_data, df_input_data_dayahead = None, None
         P_PV_forecast, P_load_forecast = None, None
@@ -162,7 +182,7 @@ def set_input_data_dict(config_path: pathlib.Path, base_path: str, costfun: str,
         df_input_data, df_input_data_dayahead = None, None
         P_PV_forecast, P_load_forecast = None, None
         days_list = None
-
+        return False
     # The input data dictionnary to return
     input_data_dict = {
         'root': base_path,
@@ -318,6 +338,8 @@ def forecast_model_fit(input_data_dict: dict, logger: logging.Logger,
     root = input_data_dict['root']
     # The ML forecaster object
     mlf = MLForecaster(data, model_type, var_model, sklearn_model, num_lags, root, logger)
+    if isinstance(mlf,bool) and not mlf:
+        return False
     # Fit the ML model
     df_pred, df_pred_backtest = mlf.fit(split_date_delta=split_date_delta, 
                                         perform_backtest=perform_backtest)
@@ -362,7 +384,7 @@ def forecast_model_predict(input_data_dict: dict, logger: logging.Logger,
                 mlf = pickle.load(inp)
         else:
             logger.error("The ML forecaster file was not found, please run a model fit method before this predict method")
-            return
+            return False
     # Make predictions
     if use_last_window:
         data_last_window = copy.deepcopy(input_data_dict['df_input_data'])
@@ -423,7 +445,7 @@ def forecast_model_tune(input_data_dict: dict, logger: logging.Logger,
                 mlf = pickle.load(inp)
         else:
             logger.error("The ML forecaster file was not found, please run a model fit method before this tune method")
-            return None, None
+            return False, False
     # Tune the model
     df_pred_optim = mlf.tune(debug=debug)
     # Save model
@@ -459,7 +481,7 @@ def publish_data(input_data_dict: dict, logger: logging.Logger,
     if opt_res_latest is None:
         if not os.path.isfile(pathlib.Path(input_data_dict['root']) / filename):
             logger.error("File not found error, run an optimization task first.")
-            return
+            return False
         else:
             opt_res_latest = pd.read_csv(pathlib.Path(input_data_dict['root']) / filename, index_col='timestamp')
             opt_res_latest.index = pd.to_datetime(opt_res_latest.index)
@@ -499,6 +521,7 @@ def publish_data(input_data_dict: dict, logger: logging.Logger,
     for k in range(input_data_dict['opt'].optim_conf['num_def_loads']):
         if "P_deferrable{}".format(k) not in opt_res_latest.columns:
             logger.error("P_deferrable{}".format(k)+" was not found in results DataFrame. Optimization task may need to be relaunched or it did not converge to a solution.")
+            return False
         else:
             input_data_dict['rh'].post_data(opt_res_latest["P_deferrable{}".format(k)], idx_closest, 
                                             custom_deferrable_forecast_id[k]["entity_id"], 
@@ -511,6 +534,7 @@ def publish_data(input_data_dict: dict, logger: logging.Logger,
     if input_data_dict['opt'].optim_conf['set_use_battery']:
         if 'P_batt' not in opt_res_latest.columns:
             logger.error("P_batt was not found in results DataFrame. Optimization task may need to be relaunched or it did not converge to a solution.")
+            return False
         else:
             custom_batt_forecast_id = params['passed_data']['custom_batt_forecast_id']
             input_data_dict['rh'].post_data(opt_res_latest['P_batt'], idx_closest,
@@ -657,6 +681,7 @@ def main():
     else:
         logger.error("The passed action argument is not valid")
         opt_res = None
+        return False
     logger.info(opt_res)
     # Flush the logger
     ch.close()

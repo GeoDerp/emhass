@@ -156,6 +156,7 @@ class Forecast(object):
             self.start_forecast = pd.Timestamp(datetime.now(), tz=self.time_zone).replace(microsecond=0).ceil(freq=self.freq)
         else:
             self.logger.error("Wrong method_ts_round passed parameter")
+            return None
         self.end_forecast = (self.start_forecast + self.optim_conf['delta_forecast']).replace(microsecond=0)
         self.forecast_dates = pd.date_range(start=self.start_forecast, 
                                             end=self.end_forecast-self.freq, 
@@ -243,6 +244,7 @@ class Forecast(object):
             # Check if the retrieved data has the correct length
             if len(data_list) < len(self.forecast_dates):
                 self.logger.error("Not enough data retrived from SolCast service, try increasing the time step or use MPC")
+                return False
             else:
                 # Ensure correct length
                 data_list = data_list[0:len(self.forecast_dates)]
@@ -296,6 +298,7 @@ class Forecast(object):
             # Check if the passed data has the correct length       
             if len(data) < len(self.forecast_dates):
                 self.logger.error("Passed data from CSV is not long enough")
+                return False
             else:
                 # Ensure correct length
                 data = data.loc[data.index[0:len(self.forecast_dates)],:]
@@ -309,6 +312,7 @@ class Forecast(object):
             # Check if the passed data has the correct length
             if len(data_list) < len(self.forecast_dates) and self.params['passed_data']['prediction_horizon'] is None:
                 self.logger.error("Passed data from passed list is not long enough")
+                return False
             else:
                 # Ensure correct length
                 data_list = data_list[0:len(self.forecast_dates)]
@@ -320,6 +324,7 @@ class Forecast(object):
         else:
             self.logger.error("Method %r is not valid", method)
             data = None
+            return False
         return data
     
     def cloud_cover_to_irradiance(self, cloud_cover: pd.Series, 
@@ -473,6 +478,7 @@ class Forecast(object):
             start_forecast_csv = pd.Timestamp(datetime.now(), tz=self.time_zone).replace(microsecond=0).ceil(freq=self.freq)
         else:
             self.logger.error("Wrong method_ts_round passed parameter")
+            return False
         end_forecast_csv = (start_forecast_csv + self.optim_conf['delta_forecast']).replace(microsecond=0)
         forecast_dates_csv = pd.date_range(start=start_forecast_csv, 
                                            end=end_forecast_csv+timedelta(days=timedelta_days)-self.freq, 
@@ -581,11 +587,15 @@ class Forecast(object):
             # We will need to retrieve a new set of load data according to the days_min_load_forecast parameter
             rh = RetrieveHass(self.retrieve_hass_conf['hass_url'], self.retrieve_hass_conf['long_lived_token'], 
                                self.freq, time_zone_load_foreacast, self.params, self.root, self.logger)
+            if isinstance(rh,bool) and not rh:
+                return False
             if self.get_data_from_file:
                 with open(pathlib.Path(self.root) / 'data' / 'test_df_final.pkl', 'rb') as inp:
                     rh.df_final, days_list, _ = pickle.load(inp)
             else:
                 days_list = get_days_list(days_min_load_forecast) 
+                if isinstance(days_list,bool) and not days_list:
+                    return False
                 if not rh.get_data(days_list, var_list):
                     return False
             if  not rh.prepare_data(self.retrieve_hass_conf['var_load'], load_negative = self.retrieve_hass_conf['load_negative'],
@@ -594,6 +604,8 @@ class Forecast(object):
                             var_interp = var_interp):
                 return False
             df = rh.df_final.copy()[[self.var_load_new]]
+            if isinstance(df,bool) and not df:
+                return False
         if method == 'naive': # using a naive approach
             mask_forecast_out = (df.index > days_list[-1] - self.optim_conf['delta_forecast'])
             forecast_out = df.copy().loc[mask_forecast_out]
@@ -612,6 +624,7 @@ class Forecast(object):
                         mlf = pickle.load(inp)
                 else:
                     self.logger.error("The ML forecaster file was not found, please run a model fit method before this predict method")
+                    return False
             # Make predictions
             if use_last_window:
                 data_last_window = copy.deepcopy(df)
@@ -632,6 +645,7 @@ class Forecast(object):
             df_csv = pd.read_csv(load_csv_file_path, header=None, names=['ts', 'yhat'])
             if len(df_csv) < len(self.forecast_dates):
                 self.logger.error("Passed data from CSV is not long enough")
+                return False
             else:
                 # Ensure correct length
                 df_csv = df_csv.loc[df_csv.index[0:len(self.forecast_dates)],:]
@@ -645,6 +659,7 @@ class Forecast(object):
             # Check if the passed data has the correct length
             if len(data_list) < len(self.forecast_dates) and self.params['passed_data']['prediction_horizon'] is None:
                 self.logger.error("Passed data from passed list is not long enough")
+                return False
             else:
                 # Ensure correct length
                 data_list = data_list[0:len(self.forecast_dates)]
@@ -656,6 +671,7 @@ class Forecast(object):
                 forecast_out = data.copy().loc[self.forecast_dates]
         else:
             self.logger.error("Passed method is not valid")
+            return False
         P_Load_forecast = copy.deepcopy(forecast_out['yhat'])
         if set_mix_forecast:
             P_Load_forecast = Forecast.get_mix_forecast(
@@ -703,6 +719,7 @@ class Forecast(object):
             # Check if the passed data has the correct length
             if len(data_list) < len(self.forecast_dates) and self.params['passed_data']['prediction_horizon'] is None:
                 self.logger.error("Passed data from passed list is not long enough")
+                return False
             else:
                 # Ensure correct length
                 data_list = data_list[0:len(self.forecast_dates)]
@@ -714,6 +731,7 @@ class Forecast(object):
                 df_final[self.var_load_cost] = forecast_out
         else:
             self.logger.error("Passed method is not valid")
+            return False
             
         return df_final
     
@@ -753,6 +771,7 @@ class Forecast(object):
             # Check if the passed data has the correct length
             if len(data_list) < len(self.forecast_dates) and self.params['passed_data']['prediction_horizon'] is None:
                 self.logger.error("Passed data from passed list is not long enough")
+                return False
             else:
                 # Ensure correct length
                 data_list = data_list[0:len(self.forecast_dates)]
@@ -764,6 +783,7 @@ class Forecast(object):
                 df_final[self.var_prod_price] = forecast_out
         else:
             self.logger.error("Passed method is not valid")
+            return False
             
         return df_final
     

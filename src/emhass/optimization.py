@@ -85,6 +85,7 @@ class Optimization:
             self.lp_solver_path = 'empty'
         if self.lp_solver != 'COIN_CMD' and self.lp_solver_path != 'empty':
             self.logger.error("Use COIN_CMD solver name if you want to set a path for the LP solver")
+            return None
         
     def perform_optimization(self, data_opt: pd.DataFrame, P_PV: np.array, P_load: np.array, 
                              unit_load_cost: np.array, unit_prod_price: np.array,
@@ -227,8 +228,10 @@ class Optimization:
                 objective = plp.lpSum(0.001*self.timeStep*unit_load_cost[i]*SC[i] for i in set_I)
             else:
                 self.logger.error("Not a valid option for type_self_conso parameter")
+                return False
         else:
             self.logger.error("The cost function specified type is not valid")
+            return False
         # Add more terms to the objective function in the case of battery use
         if self.optim_conf['set_use_battery']:
             objective = objective + plp.lpSum(-0.001*self.timeStep*(
@@ -496,6 +499,7 @@ class Optimization:
                     unit_prod_price[i]*P_grid_neg[i].varValue) for i in set_I]
         else:
             self.logger.error("The cost function specified type is not valid")
+            return False
             
         # Add the optimization status
         opt_tp["optim_status"] = self.optim_status
