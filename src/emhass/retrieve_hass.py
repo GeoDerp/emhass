@@ -165,6 +165,7 @@ class RetrieveHass:
         if (self.df_final.index.freq != self.freq) or (isinstance(self.df_final,bool) and not self.df_final):
             self.logger.error("The inferred freq from data is not equal to the defined freq in passed parameters")
             return False
+        return True    
     
     def prepare_data(self, var_load: str, load_negative: Optional[bool] = False, set_zero_min: Optional[bool] = True,
                      var_replace_zero: Optional[list] = None, var_interp: Optional[list] = None) -> None:
@@ -232,6 +233,7 @@ class RetrieveHass:
             self.df_final.index = self.df_final.index.tz_convert(self.time_zone)
         # Drop datetimeindex duplicates on final DF
         self.df_final = self.df_final[~self.df_final.index.duplicated(keep='first')]
+        return True    
     
     @staticmethod
     def get_attr_data_dict(data_df: pd.DataFrame, idx: int, entity_id: str, 
