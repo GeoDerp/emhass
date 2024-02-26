@@ -46,7 +46,6 @@ jobs:
             build_version=standalone
             TARGETARCH=${{ matrix.platform.target_arch }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ steps.meta.outputs.tags }}
           outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/emhass-docker-standalone,push-by-digest=true,name-canonical=true,push=true
       - name: Export digest
         run: |
