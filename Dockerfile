@@ -35,6 +35,7 @@ RUN apt-get update \
     libnetcdf-dev \
     pkg-config \
     ninja-build \
+    libopenblas-dev \
     patchelf \
     gfortran \
     libatlas-base-dev \
@@ -44,6 +45,7 @@ RUN apt-get update \
     && apt-get purge -y --auto-remove \
     ninja-build \
     patchelf \
+    libopenblas-dev \
     gcc \
     build-essential \
     libhdf5-dev \
