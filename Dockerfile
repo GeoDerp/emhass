@@ -37,7 +37,6 @@ RUN apt-get update \
     libatlas-base-dev \
     && ln -s /usr/include/hdf5/serial /usr/include/hdf5/include \
     && export HDF5_DIR=/usr/include/hdf5 \
-    && pip3 install --extra-index-url=https://www.piwheels.org/simple --no-cache-dir --break-system-packages -U setuptools wheel \
     && pip3 install --extra-index-url=https://www.piwheels.org/simple --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
     gcc \
