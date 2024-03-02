@@ -35,6 +35,7 @@ RUN apt-get update \
     libnetcdf-dev \
     pkg-config \
     ninja-build \
+    libopenblas-dev \
     gfortran \
     libatlas-base-dev \
     && ln -s /usr/include/hdf5/serial /usr/include/hdf5/include \
