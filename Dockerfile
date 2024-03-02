@@ -35,11 +35,22 @@ RUN apt-get update \
     libnetcdf-dev \
     pkg-config \
     ninja-build \
+    patchelf \
     gfortran \
     libatlas-base-dev \
     && ln -s /usr/include/hdf5/serial /usr/include/hdf5/include \
     && export HDF5_DIR=/usr/include/hdf5 \
-    && pip3 install --no-cache-dir --break-system-packages -r requirements.txt
+    && pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
+    && apt-get purge -y --auto-remove \
+    ninja-build \
+    gcc \
+    build-essential \
+    libhdf5-dev \
+    libhdf5-serial-dev \
+    pkg-config \
+    gfortran \
+    && rm -rf /var/lib/apt/lists/*
+
 
 #copy config file (on all builds)
 COPY config_emhass.yaml /app/
