@@ -43,6 +43,7 @@ RUN apt-get update \
     && pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
     ninja-build \
+    patchelf \
     gcc \
     build-essential \
     libhdf5-dev \
