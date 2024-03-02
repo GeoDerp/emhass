@@ -35,7 +35,6 @@ RUN apt-get update \
     libnetcdf-dev \
     pkg-config \
     ninja-build \
-    libopenblas-dev \
     patchelf \
     gfortran \
     libatlas-base-dev \
