@@ -39,7 +39,7 @@ RUN apt-get update \
     libatlas-base-dev \
     && ln -s /usr/include/hdf5/serial /usr/include/hdf5/include \
     && export HDF5_DIR=/usr/include/hdf5 \
-    && pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
+    && pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 #copy config file (on all builds)
 COPY config_emhass.yaml /app/
