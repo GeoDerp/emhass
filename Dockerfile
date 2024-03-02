@@ -23,7 +23,6 @@ RUN apt-get update \
     python3-pip \
     python3-dev \
     git \
-    pkg-config \
     build-essential \
     gcc \
     coinor-cbc \
@@ -35,20 +34,12 @@ RUN apt-get update \
     netcdf-bin \
     libnetcdf-dev \
     pkg-config \
+    libopenblas-dev \
     gfortran \
     libatlas-base-dev \
     && ln -s /usr/include/hdf5/serial /usr/include/hdf5/include \
     && export HDF5_DIR=/usr/include/hdf5 \
     && pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
-    && apt-get purge -y --auto-remove \
-    gcc \
-    build-essential \
-    libhdf5-dev \
-    libhdf5-serial-dev \
-    pkg-config \
-    gfortran \
-    && rm -rf /var/lib/apt/lists/*
-
 
 #copy config file (on all builds)
 COPY config_emhass.yaml /app/
