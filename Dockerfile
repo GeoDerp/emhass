@@ -21,7 +21,6 @@ RUN apt-get update \
     libffi-dev \
     python3 \
     python3-pip \
-    python3-dev \
     git \
     build-essential \
     gcc \
