@@ -52,6 +52,8 @@ RUN apt-get update \
     libhdf5-serial-dev \
     pkg-config \
     gfortran \
+    netcdf-bin \
+    libnetcdf-dev \
     && rm -rf /var/lib/apt/lists/*
 
 
