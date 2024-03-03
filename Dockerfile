@@ -19,7 +19,7 @@ ENV TARGETARCH=${TARGETARCH:?}
 WORKDIR /app
 COPY requirements.txt /app/
 
-# setup
+#setup
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     libffi-dev \
@@ -52,7 +52,9 @@ RUN [[ "${TARGETARCH}" == "armhf" ]] \
 && git checkout $(git describe --tags) \
 && export TARGET=ARMV6 \
 && make FC=gfortran \
-&& cd .. || apt install -y libopenblas-dev
+&& cd .. || echo "not armf"
+RUN [[ "${TARGETARCH}" != "armhf" ]] \
+apt install -y libopenblas-dev || echo "armf"
 #remove build only packadges
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
