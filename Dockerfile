@@ -40,7 +40,7 @@ RUN apt-get update \
     libatlas-base-dev \
     && ln -s /usr/include/hdf5/serial /usr/include/hdf5/include \
     && export HDF5_DIR=/usr/include/hdf5 \
-    && git clone https://github.com/OpenMathLib/OpenBLAS.git && cd  OpenBLAS && make CC=cc FC=gfortran && cd .. \
+    && [[ $TARGETARCH == "armhf" ]] && pip3 install --no-cache-dir --break-system-packages -U numpy<=1.26.2 --config-settings=setup-args="-Dallow-noblas=true" || echo "ARCH not armf" \
     && pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
     ninja-build \
