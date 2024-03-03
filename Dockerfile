@@ -50,7 +50,7 @@ RUN [[ "${TARGETARCH}" == "armhf" ]] \
 && git clone https://github.com/OpenMathLib/OpenBLAS.git \
 && cd OpenBLAS \
 && git checkout $(git describe --tags) \
-&& export TARGET=ARMV6 \
+&& export TARGET=ARMV7 \
 && make FC=gfortran \
 && cd .. || echo "not armf"
 #if not amdhf then install openblas via apt
