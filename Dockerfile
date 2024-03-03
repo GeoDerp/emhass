@@ -12,7 +12,7 @@ ARG build_version=standalone
 
 FROM ghcr.io/home-assistant/$TARGETARCH-base-debian:bookworm AS base
 
-ENV TARGETARCH ${TARGETARCH}
+# ENV TARGETARCH ${TARGETARCH:?}
 
 WORKDIR /app
 COPY requirements.txt /app/
@@ -44,8 +44,8 @@ RUN apt-get update \
 RUN ln -s /usr/include/hdf5/serial /usr/include/hdf5/include 
 RUN export HDF5_DIR=/usr/include/hdf5 
 #check if armhf (32bit) and build openblas for numpy
-RUN [[ $TARGETARCH == "armhf" ]] \
-&& pip3 install --no-cache-dir --break-system-packages -U numpy --config-settings=setup-args="-Dallow-noblas=true"
+# RUN [[ $TARGETARCH == "armhf" ]] \
+# && pip3 install --no-cache-dir --break-system-packages -U numpy --config-settings=setup-args="-Dallow-noblas=true"
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
     ninja-build \
