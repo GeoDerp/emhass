@@ -12,10 +12,12 @@ ARG build_version=standalone
 
 FROM ghcr.io/home-assistant/$TARGETARCH-base-debian:bookworm AS base
 
+ENV TARGETARCH=$TARGETARCH
+
 WORKDIR /app
 COPY requirements.txt /app/
 
-# Setup
+# setup
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     libffi-dev \
@@ -41,7 +43,7 @@ RUN apt-get update \
 RUN ln -s /usr/include/hdf5/serial /usr/include/hdf5/include 
 RUN export HDF5_DIR=/usr/include/hdf5 
 #check if armhf (32bit) and install numpy with no blas
-RUN [[ $TARGETARCH == "armhf" ]] && pip3 install --no-cache-dir --break-system-packages -U numpy<=1.26.2 --config-settings=setup-args="-Dallow-noblas=true" || echo "ARCH not armf" 
+RUN [[ $TARGETARCH == "armhf" ]] && pip3 install --no-cache-dir --break-system-packages -U numpy<=1.26.2 --config-settings=setup-args="-Dallow-noblas=true"
 #remove build only packadges
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
