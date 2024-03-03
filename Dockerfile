@@ -61,7 +61,6 @@ RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     ninja-build \
     meson \
     patchelf \
-    libopenblas-dev \
     gcc \
     build-essential \
     libhdf5-dev \
