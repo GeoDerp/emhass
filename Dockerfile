@@ -17,7 +17,7 @@ ENV TARGETARCH=$TARGETARCH
 WORKDIR /app
 COPY requirements.txt /app/
 
-# setup
+#setup
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     libffi-dev \
@@ -36,6 +36,7 @@ RUN apt-get update \
     netcdf-bin \
     libnetcdf-dev \
     pkg-config \
+    libopenblas-dev \
     ninja-build \
     patchelf \
     gfortran \
