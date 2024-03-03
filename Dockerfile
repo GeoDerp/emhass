@@ -53,7 +53,8 @@ RUN [[ "${TARGETARCH}" == "armhf" ]] \
 && export TARGET=ARMV6 \
 && make FC=gfortran \
 && cd .. || echo "not armf"
-RUN [[! "${TARGETARCH}" == "armhf" ]] \
+#if not amdhf then install openblas via apt
+RUN [[ ! "${TARGETARCH}" == "armhf" ]] \
 apt install -y libopenblas-dev || echo "armf"
 #remove build only packadges
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
