@@ -12,12 +12,12 @@ ARG build_version=standalone
 
 FROM ghcr.io/home-assistant/$TARGETARCH-base-debian:bookworm AS base
 
-ENV TARGETARCH=$TARGETARCH
+ENV TARGETARCH=TARGETARCH
 
 WORKDIR /app
 COPY requirements.txt /app/
 
-#setup
+# setup
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     libffi-dev \
@@ -36,14 +36,20 @@ RUN apt-get update \
     netcdf-bin \
     libnetcdf-dev \
     pkg-config \
-    libopenblas-dev \
     ninja-build \
     patchelf \
     gfortran \
     libatlas-base-dev 
 RUN ln -s /usr/include/hdf5/serial /usr/include/hdf5/include 
 RUN export HDF5_DIR=/usr/include/hdf5 
-#remove build only packadges
+# #check if armhf (32bit) and build openblas for numpy
+# RUN [[ $TARGETARCH == "armhf" ]] \
+# && git clone https://github.com/OpenMathLib/OpenBLAS.git \
+# && cd OpenBLAS \
+# && git checkout $(git describe --tags) \
+# && make FC=gfortran \
+# && cd ..
+# remove build only packadges
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
     ninja-build \
@@ -60,7 +66,7 @@ RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && rm -rf /var/lib/apt/lists/*
 
 
-#copy config file (on all builds)
+# copy config file (on all builds)
 COPY config_emhass.yaml /app/
 
 # Make sure data directory exists
