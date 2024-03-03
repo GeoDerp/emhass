@@ -12,7 +12,9 @@ ARG build_version=standalone
 
 FROM ghcr.io/home-assistant/$TARGETARCH-base-debian:bookworm AS base
 
-# ENV TARGETARCH ${TARGETARCH:?}
+#check if TARGETARCH passed by build-arg
+ARG TARGETARCH
+ENV TARGETARCH=${TARGETARCH:?}
 
 WORKDIR /app
 COPY requirements.txt /app/
@@ -43,9 +45,14 @@ RUN apt-get update \
     libatlas-base-dev 
 RUN ln -s /usr/include/hdf5/serial /usr/include/hdf5/include 
 RUN export HDF5_DIR=/usr/include/hdf5 
-#check if armhf (32bit) and build openblas for numpy
-# RUN [[ $TARGETARCH == "armhf" ]] \
-# && pip3 install --no-cache-dir --break-system-packages -U numpy --config-settings=setup-args="-Dallow-noblas=true"
+#check if armhf (32bit) and build openblas for numpy and scipy
+RUN [[ "${TARGETARCH}" == "armhf" ]] \
+&& git clone https://github.com/OpenMathLib/OpenBLAS.git \
+&& cd OpenBLAS \
+&& git checkout $(git describe --tags) \
+&& make FC=gfortran \
+&& cd .. || echo "not armhf"
+#remove build only packadges
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
     ninja-build \
