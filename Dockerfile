@@ -55,7 +55,7 @@ RUN [[ "${TARGETARCH}" == "armhf" ]] \
 && cd .. || echo "not armf"
 #if not amdhf then install openblas via apt
 RUN [[ ! "${TARGETARCH}" == "armhf" ]] \
-apt install -y libopenblas-dev || echo "armf"
+&& apt install -y libopenblas-dev || echo "armf"
 #remove build only packadges
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
