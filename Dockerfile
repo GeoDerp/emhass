@@ -51,7 +51,7 @@ RUN [[ "${TARGETARCH}" == "armhf" ]] \
 && cd OpenBLAS \
 && git checkout $(git describe --tags) \
 && make FC=gfortran \
-&& cd .. || echo "not armhf"
+&& cd .. || apt install libopenblas-dev
 #remove build only packadges
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
