@@ -34,6 +34,7 @@ RUN apt-get update \
     netcdf-bin \
     libnetcdf-dev \
     pkg-config \
+    meson \
     ninja-build \
     patchelf \
     gfortran \
@@ -51,6 +52,7 @@ RUN export HDF5_DIR=/usr/include/hdf5
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
     ninja-build \
+    meson \
     patchelf \
     libopenblas-dev \
     gcc \
