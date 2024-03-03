@@ -50,8 +50,9 @@ RUN [[ "${TARGETARCH}" == "armhf" ]] \
 && git clone https://github.com/OpenMathLib/OpenBLAS.git \
 && cd OpenBLAS \
 && git checkout $(git describe --tags) \
+&& export TARGET=ARMV6 \
 && make FC=gfortran \
-&& cd .. || apt install libopenblas-dev
+&& cd .. || apt install -y libopenblas-dev
 #remove build only packadges
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
