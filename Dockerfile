@@ -42,13 +42,6 @@ RUN apt-get update \
     libatlas-base-dev 
 RUN ln -s /usr/include/hdf5/serial /usr/include/hdf5/include 
 RUN export HDF5_DIR=/usr/include/hdf5 
-#check if armhf (32bit) and build openblas for numpy
-RUN [[ $TARGETARCH == "armhf" ]] \
-&& git clone https://github.com/OpenMathLib/OpenBLAS.git \
-&& cd OpenBLAS \
-&& git checkout $(git describe --tags) \
-&& make FC=gfortran \
-&& cd ..
 #remove build only packadges
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
