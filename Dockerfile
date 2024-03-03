@@ -12,8 +12,6 @@ ARG build_version=standalone
 
 FROM ghcr.io/home-assistant/$TARGETARCH-base-debian:bookworm AS base
 
-ENV TARGETARCH=TARGETARCH
-
 WORKDIR /app
 COPY requirements.txt /app/
 
