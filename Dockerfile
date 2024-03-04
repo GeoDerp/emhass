@@ -29,6 +29,7 @@ dpkg --install /var/cache/apt/archives/*_armhf.deb ; \
 apt-mark showauto | sed -n -e's/:armel$//p' > auto-package-list \
 apt install --allow-remove-essential $(dpkg -l | awk '$1 ~ /^.i/ && $2 ~ /:armel$/ { sub(":armel", ""); print $2; print $2 ":armel-" }') ; \
 xargs apt-mark auto < auto-package-list ; \
+apt purge $(dpkg -l | grep '^.i.*:armel' | awk '{print $2}') ; \
 dpkg --remove-architecture armel || echo "not armf"
 
 #setup
