@@ -18,12 +18,22 @@ ENV TARGETARCH=${TARGETARCH:?}
 WORKDIR /app
 COPY requirements.txt /app/
 
-#if arch is armhf add armhf package library 
-#update and cache package library
-RUN [[ "${TARGETARCH}" == "armhf" ]] && dpkg --add-architecture armhf ; apt update -o APT::Architecture="armhf" || apt-get update
+#if arch is armhf replace armel package library with armhf
+RUN [[ "${TARGETARCH}" == "armhf" ]] && dpkg --add-architecture armhf ; \
+apt update -o APT::Architecture="armhf" ; \
+apt install linux-image-armhf:armhf ; \
+apt clean ; \
+apt upgrade; \
+apt --download-only install dpkg:armhf tar:armhf apt:armhf dpkg:armel- tar:armel- apt:armel- ; \
+dpkg --install /var/cache/apt/archives/*_armhf.deb ; \
+apt-mark showauto | sed -n -e's/:armel$//p' > auto-package-list \
+apt install --allow-remove-essential $(dpkg -l | awk '$1 ~ /^.i/ && $2 ~ /:armel$/ { sub(":armel", ""); print $2; print $2 ":armel-" }') ; \
+xargs apt-mark auto < auto-package-list ; \
+dpkg --remove-architecture armel || echo "not armf"
 
 #setup
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
     libffi-dev \
     python3 \
     python3-pip \
