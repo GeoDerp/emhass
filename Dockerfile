@@ -1,11 +1,12 @@
-## EMHASS Docker 
+## EMHASS Docker
+## 
 ## Docker run ADD-ON testing example: 
-## docker build -t emhass/docker --build-arg build_version=addon-local .
-## docker run -it -p 5000:5000 --name emhass-container -e LAT="45.83" -e LON="6.86" -e ALT="4807.8" -e TIME_ZONE="Europe/Paris" emhass/docker --url YOURHAURLHERE --key YOURHAKEYHERE
+    ## docker build -t emhass/docker --build-arg build_version=addon-local .
+    ## docker run -it -p 5000:5000 --name emhass-container -e LAT="45.83" -e LON="6.86" -e ALT="4807.8" -e TIME_ZONE="Europe/Paris" emhass/docker --url YOURHAURLHERE --key YOURHAKEYHERE
 ##
 ## Docker run Standalone example:
-## docker build -t emhass/docker --build-arg build_version=standalone .
-## docker run -it -p 5000:5000 --name emhass-container -v $(pwd)/config_emhass.yaml:/app/config_emhass.yaml -v $(pwd)/secrets_emhass.yaml:/app/secrets_emhass.yaml emhass/docker 
+    ## docker build -t emhass/docker --build-arg build_version=standalone .
+    ## docker run -it -p 5000:5000 --name emhass-container -v $(pwd)/config_emhass.yaml:/app/config_emhass.yaml -v $(pwd)/secrets_emhass.yaml:/app/secrets_emhass.yaml emhass/docker 
 
 #build_version options are: addon, addon-pip, addon-git, addon-local, standalone (default)
 ARG build_version=standalone
@@ -18,6 +19,9 @@ ENV TARGETARCH=${TARGETARCH:?}
 
 WORKDIR /app
 COPY requirements.txt /app/
+
+#if armhf remove armel and replace with armhf
+RUN [[ "${TARGETARCH}" == "armhf" ]] && dpkg --add-architecture armhf ; dpkg --remove-architecture armel || echo "not armf"
 
 #setup
 RUN apt-get update \
@@ -37,6 +41,8 @@ RUN apt-get update \
     libhdf5-serial-dev \
     netcdf-bin \
     libnetcdf-dev \
+    libopenblas-dev \
+    cmake \
     pkg-config \
     meson \
     ninja-build \
@@ -45,21 +51,12 @@ RUN apt-get update \
     libatlas-base-dev 
 RUN ln -s /usr/include/hdf5/serial /usr/include/hdf5/include 
 RUN export HDF5_DIR=/usr/include/hdf5 
-#check if armhf (32bit) and build openblas for numpy and scipy
-RUN [[ "${TARGETARCH}" == "armhf" ]] \
-&& git clone https://github.com/OpenMathLib/OpenBLAS.git \
-&& cd OpenBLAS \
-&& git checkout $(git describe --tags) \
-&& export TARGET=ARMV7 \
-&& make FC=gfortran \
-&& cd .. || echo "not armf"
-#if not amdhf then install openblas via apt
-RUN [[ ! "${TARGETARCH}" == "armhf" ]] \
-&& apt install -y libopenblas-dev || echo "armf"
+
 #remove build only packadges
-RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
+RUN pip3 install --index-url=https://www.piwheels.org/simple  --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
     ninja-build \
+    cmake \
     meson \
     patchelf \
     gcc \
@@ -73,10 +70,10 @@ RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
     && rm -rf /var/lib/apt/lists/*
 
 
-# copy config file (on all builds)
+#copy config file (on all builds)
 COPY config_emhass.yaml /app/
 
-# Make sure data directory exists
+#make sure data directory exists
 RUN mkdir -p /app/data/
 
 #-------------------------
@@ -155,12 +152,12 @@ COPY README.md /app/
 COPY setup.py /app/
 #secrets file will need to be copied manually at docker run
 
-# # set env variables
+#set env variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 #build EMHASS
-# RUN python3 setup.py install
+#RUN python3 setup.py install
 RUN python3 -m pip install --no-cache-dir --break-system-packages -U  .
 ENTRYPOINT [ "python3", "-m", "emhass.web_server"]
 #-------------------------
