@@ -18,12 +18,12 @@ ENV TARGETARCH=${TARGETARCH:?}
 WORKDIR /app
 COPY requirements.txt /app/
 
-#if arch is armhf replace armel package library with armhf
-RUN [[ "${TARGETARCH}" == "armhf" ]] && dpkg --add-architecture armhf ; apt update -o APT::Architecture="armhf" ; apt-get purge ".*:armel" ; dpkg --remove-architecture armel || echo "not armf"
+#if arch is armhf add armhf package library 
+#update and cache package library
+RUN [[ "${TARGETARCH}" == "armhf" ]] && dpkg --add-architecture armhf ; apt update -o APT::Architecture="armhf" || apt-get update
 
 #setup
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+RUN apt-get install -y --no-install-recommends \
     libffi-dev \
     python3 \
     python3-pip \
