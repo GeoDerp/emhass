@@ -53,7 +53,7 @@ RUN ln -s /usr/include/hdf5/serial /usr/include/hdf5/include
 RUN export HDF5_DIR=/usr/include/hdf5 
 
 #remove build only packadges
-RUN pip3 install --index-url=https://www.piwheels.org/simple  --no-cache-dir --break-system-packages -r requirements.txt \
+RUN pip3 install --extra-index-url=https://www.piwheels.org/simple  --no-cache-dir --break-system-packages -r requirements.txt \
     && apt-get purge -y --auto-remove \
     ninja-build \
     cmake \
