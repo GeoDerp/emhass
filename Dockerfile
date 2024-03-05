@@ -18,8 +18,8 @@ ENV TARGETARCH=${TARGETARCH:?}
 WORKDIR /app
 COPY requirements.txt /app/
 
-#if arch is armhf replace armel package library with armhf
-RUN [[ "${TARGETARCH}" == "armhf" ]] && dpkg --add-architecture armhf ; dpkg --remove-architecture armel || echo "not armf"
+#add architecture package library if not already
+RUN dpkg --add-architecture ${TARGETARCH} 
 
 
 RUN apt-get update -o APT::Architecture="${TARGETARCH}" \
