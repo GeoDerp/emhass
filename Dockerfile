@@ -22,7 +22,7 @@ COPY requirements.txt /app/
 RUN dpkg --add-architecture ${TARGETARCH} 
 
 
-RUN apt-get update -o APT::Architecture="${TARGETARCH}" \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     libffi-dev \
     python3 \
