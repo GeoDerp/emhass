@@ -15,10 +15,10 @@ jobs:
       fail-fast: false
       matrix:
         platform: [
-          {buildx: linux/amd64, target_arch: amd64, os_version: base},
-          {buildx: linux/arm/v7, target_arch: armv7, os_version: base},
+          {buildx: linux/amd64, target_arch: amd64, os_version: debian},
+          {buildx: linux/arm/v7, target_arch: armv7, os_version: debian},
           {buildx: linux/arm/v7, target_arch: armhf, os_version: raspbian},
-          {buildx: linux/arm64,  target_arch: aarch64, os_version: base}
+          {buildx: linux/arm64,  target_arch: aarch64, os_version: debian}
         ]
     steps:
       - name: Checkout the repository
