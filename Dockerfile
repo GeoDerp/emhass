@@ -19,7 +19,9 @@ ENV TARGETARCH=${TARGETARCH:?}
 WORKDIR /app
 COPY requirements.txt /app/
 
-# install all apt packages 
+#add python user path 
+RUN echo 'export PATH="/root/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     libffi-dev \
@@ -60,6 +62,8 @@ RUN apt-get purge -y --auto-remove \
     meson \
     ninja-build \
     build-essential \
+    libhdf5-dev \
+    libhdf5-serial-dev \
     pkg-config \
     gfortran \
     netcdf-bin \
@@ -152,6 +156,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 #build EMHASS
+#RUN python3 setup.py install
 RUN pip3 install --no-cache-dir --break-system-packages --no-deps --force-reinstall  .
 ENTRYPOINT [ "python3", "-m", "emhass.web_server"]
 #-------------------------
