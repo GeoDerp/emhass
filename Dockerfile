@@ -22,31 +22,31 @@ COPY requirements.txt /app/
 RUN dpkg --add-architecture ${TARGETARCH} 
 
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+RUN apt-get update -o APT::Architecture="${TARGETARCH}" \
+    && apt-get install -y --no-install-recommends -o Dir::Cache="./" -o Dir::Cache::archives="./" \
     libffi-dev \
     python3 \
     python3-pip \
     python3-dev \
     git \
-    build-essential \
     gcc \
+    patchelf \
+    cmake \
+    meson \
+    ninja-build \
+    build-essential \
+    libhdf5-dev \
+    libhdf5-serial-dev \
+    pkg-config \
+    gfortran \
+    netcdf-bin \
+    libnetcdf-dev \
     coinor-cbc \
     coinor-libcbc-dev \
     libglpk-dev \
     glpk-utils \
-    libhdf5-dev \
-    libhdf5-serial-dev \
-    netcdf-bin \
-    libnetcdf-dev \
-    libopenblas-dev \
-    cmake \
-    pkg-config \
-    meson \
-    ninja-build \
-    patchelf \
-    gfortran \
-    libatlas-base-dev 
+    libatlas-base-dev \
+    libopenblas-dev
 RUN ln -s /usr/include/hdf5/serial /usr/include/hdf5/include 
 RUN export HDF5_DIR=/usr/include/hdf5 
 
@@ -55,11 +55,12 @@ RUN [[ "${TARGETARCH}" == "armhf" || "${TARGETARCH}" == "armv7" ]] &&  pip3 inst
 
 #remove build only packages
 RUN apt-get purge -y --auto-remove \
-    ninja-build \
+    git \
+    gcc \
+    patchelf \
     cmake \
     meson \
-    patchelf \
-    gcc \
+    ninja-build \
     build-essential \
     libhdf5-dev \
     libhdf5-serial-dev \
