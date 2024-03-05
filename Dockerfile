@@ -22,8 +22,8 @@ COPY requirements.txt /app/
 RUN dpkg --add-architecture ${TARGETARCH} 
 
 
-RUN apt-get update -o APT::Architecture="${TARGETARCH}" \
-    && apt-get install -y --no-install-recommends -o Dir::Cache="./" -o Dir::Cache::archives="./" \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
     libffi-dev \
     python3 \
     python3-pip \
@@ -46,7 +46,7 @@ RUN apt-get update -o APT::Architecture="${TARGETARCH}" \
     libglpk-dev \
     glpk-utils \
     libatlas-base-dev \
-    libopenblas-dev
+    libopenblas-dev 
 RUN ln -s /usr/include/hdf5/serial /usr/include/hdf5/include 
 RUN export HDF5_DIR=/usr/include/hdf5 
 
@@ -88,14 +88,12 @@ LABEL \
     io.hass.type="addon" \
     io.hass.arch="aarch64|amd64|armhf|armv7"
 
-ENTRYPOINT [ "python3", "-m", "emhass.web_server","--addon", "True", "--url", "http://supervisor/core/api"]
-
 #-----------
 #EMHASS-ADD-ON Testing with pip emhass (closest testing reference) 
 FROM addon as addon-pip
 #set build arg for pip version
 ARG build_pip_version=""
-RUN pip3 install --no-cache-dir --break-system-packages --upgrade --upgrade-strategy=only-if-needed -U emhass${build_pip_version}
+RUN pip3 install --no-cache-dir --break-system-packages --upgrade --force-reinstall --no-deps --upgrade-strategy=only-if-needed -U emhass${build_pip_version}
 
 COPY options.json /app/
 
@@ -114,7 +112,7 @@ COPY options.json /app/
 COPY README.md /app/
 COPY setup.py /app/
 #compile EMHASS locally
-RUN python3 -m pip install --no-cache-dir --break-system-packages -U  .
+RUN pip3 install --no-cache-dir --break-system-packages --no-deps --force-reinstall  .
 ENTRYPOINT [ "python3", "-m", "emhass.web_server","--addon", "True" , "--no_response", "True"]
 
 
@@ -137,7 +135,7 @@ RUN cp /tmp/emhass/README.md /app/
 #add options.json, this otherwise would be generated via HA
 RUN cp /tmp/emhass/options.json /app/
 WORKDIR /app
-RUN python3 -m pip install --no-cache-dir --break-system-packages -U  .
+RUN pip3 install --no-cache-dir --break-system-packages --no-deps --force-reinstall  .
 ENTRYPOINT [ "python3", "-m", "emhass.web_server","--addon", "True" , "--no_response", "True"]
 
 #-------------------------
@@ -159,7 +157,7 @@ ENV PYTHONUNBUFFERED 1
 
 #build EMHASS
 #RUN python3 setup.py install
-RUN python3 -m pip install --no-cache-dir --break-system-packages -U  .
+RUN pip3 install --no-cache-dir --break-system-packages --no-deps --force-reinstall  .
 ENTRYPOINT [ "python3", "-m", "emhass.web_server"]
 #-------------------------
 
