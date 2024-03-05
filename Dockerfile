@@ -7,8 +7,11 @@
     ## docker run -it -p 5000:5000 --name emhass-container -v $(pwd)/config_emhass.yaml:/app/config_emhass.yaml -v $(pwd)/secrets_emhass.yaml:/app/secrets_emhass.yaml emhass/docker 
 
 #build_version options are: addon, addon-pip, addon-git, addon-local, standalone (default)
-ARG build_version=standalone
-ARG os_version=debian
+ARG build_version=standalone 
+#os_version 
+#armhf = raspbian
+#amd64, armv7, aarch64 = debian
+ARG os_version=debian 
 
 FROM ghcr.io/home-assistant/$TARGETARCH-base-$os_version:bookworm AS base
 

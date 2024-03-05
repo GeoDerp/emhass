@@ -226,8 +226,10 @@ If your docker build fails with an error related to `TARGETARCH`. It may be best
 
 Example with armhf architecture 
 ```bash
-docker build ... --build-arg TARGETARCH=armhf ...
+docker build ... --build-arg TARGETARCH=armhf --build-arg os_version=raspbian ...
 ```
+*For `armhf` only, create a build-arg for `os_version=raspbian`* 
+
 
 #### Delete built Docker image
 
