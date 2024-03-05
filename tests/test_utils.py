@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import numpy as np
 import pandas as pd
 import pathlib, json, yaml, copy
 
