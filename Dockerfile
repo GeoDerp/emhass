@@ -8,8 +8,9 @@
 
 #build_version options are: addon, addon-pip, addon-git, addon-local, standalone (default)
 ARG build_version=standalone
+ARG os_version=debian
 
-FROM ghcr.io/home-assistant/$TARGETARCH-base-debian:bookworm AS base
+FROM ghcr.io/home-assistant/$TARGETARCH-base-$os_version:bookworm AS base
 
 #check if TARGETARCH passed by build-arg
 ARG TARGETARCH
@@ -17,9 +18,6 @@ ENV TARGETARCH=${TARGETARCH:?}
 
 WORKDIR /app
 COPY requirements.txt /app/
-
-#add architecture package library if not already
-RUN dpkg --add-architecture ${TARGETARCH} 
 
 #add python user path 
 RUN echo 'export PATH="/root/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
