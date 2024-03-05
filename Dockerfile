@@ -22,7 +22,7 @@ COPY requirements.txt /app/
 RUN [[ "${TARGETARCH}" == "armhf" ]] && dpkg --add-architecture armhf ; dpkg --remove-architecture armel || echo "not armf"
 
 
-RUN apt-get update -o APT::Architecture="${TARGETARCH}" \ 
+RUN apt-get update -o APT::Architecture="${TARGETARCH}" \
     && apt-get install -y --no-install-recommends \
     libffi-dev \
     python3 \
