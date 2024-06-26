@@ -8,6 +8,11 @@ on:
     branches: [ master ]
   workflow_dispatch:
 
+
+permissions:
+  contents: read 
+    
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -39,5 +44,15 @@ jobs:
             os_version=${{ matrix.platform.os_version }}
           tags: emhass/standalone-test
           load: true
-      - name: Test #assume docker fail with FileNotFound secrets_emhass.yaml error
+      - name: osv-scan #Test check Docker image debian packadges for vulnerabilities 
+        uses: google/osv-scanner/.github/workflows/osv-scanner-reusable.yml
+        with:
+          scan-args: |-
+            --recursive
+            --skip-git
+            ./
+            --docker emhass/standalone-test
+        permissions:
+          security-events: write    
+      - name: Test #Assume Docker fail with FileNotFound secrets_emhass.yaml error
         run: docker run --rm -it emhass/standalone-test | grep -q secrets_emhass.yaml && echo 0 || echo 1
