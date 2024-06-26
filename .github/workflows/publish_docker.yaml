@@ -52,7 +52,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/emhass-docker-standalone,push-by-digest=true,name-canonical=true,push=true
       - name: osv-scan #check Docker image debian packadges for vulnerabilities 
-        uses: google/osv-scanner/.github/workflows/osv-scanner-reusable.yml
+        uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.7.1"
         with:
           scan-args: |-
             --recursive
