@@ -45,7 +45,7 @@ jobs:
           tags: emhass/standalone-test
           load: true
       - name: osv-scan #Test check Docker image debian packadges for vulnerabilities 
-        uses: google/osv-scanner/.github/workflows/osv-scanner-reusable.yml
+        uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.7.1"
         with:
           scan-args: |-
             --recursive
