@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read # to fetch code (actions/checkout)
+  contents: read
 
 jobs:
   build:
@@ -63,6 +63,7 @@ jobs:
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
+  
   # Google OSV-Scanner  
   osv-scan:
     needs:
@@ -84,7 +85,8 @@ jobs:
         --download-artifact: digests-${{ matrix.platform.target_arch }}
         --docker digests-${{ matrix.platform.target_arch }}
     permissions:
-      security-events: write          
+      contents: read
+      security-events: write       
   
   merge:
     if: always()
