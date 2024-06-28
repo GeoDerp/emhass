@@ -84,6 +84,7 @@ jobs:
         ./
         --download-artifact: digests-${{ matrix.platform.target_arch }}
         --docker digests-${{ matrix.platform.target_arch }}
+        --results-file-name ${{ matrix.platform.target_arch }}.sarif
     permissions:
       contents: read
       security-events: write       
