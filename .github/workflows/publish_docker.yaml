@@ -53,19 +53,26 @@ jobs:
           outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/emhass-docker-standalone,push-by-digest=true,name-canonical=true,push=true
       - name: Export digest
         run: |
-          mkdir -p ./digests/
+          mkdir -p /tmp/digests/
           digest="${{ steps.build.outputs.digest }}"
-          touch "./digests/${digest#sha256:}"
+          touch "/tmp/digests/${digest#sha256:}"
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
           name: digests-${{ matrix.platform.target_arch }}
-          path: ./digests/*
+          path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
-      # - name: Export Package List
-      #   run: docker run --rm -it emhass/standalone-test | grep -q secrets_emhass.yaml && echo 0 || echo 1       
-  
+      - name: Export Debian Package List
+        run: docker run --rm --entrypoint cat /var/lib/dpkg/status  ${{ steps.build.outputs.digest }} /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.target_arch }}.status
+          path: ./
+          if-no-files-found: error
+          retention-days: 1
+
   # Google OSV-Scanner  
   osv-scan:
     needs:
@@ -84,8 +91,8 @@ jobs:
         --recursive
         --skip-git
         ./
-        --download-artifact: digests/digests-${{ matrix.platform.target_arch }}
-        --docker digests-${{ matrix.platform.target_arch }}
+        --download-artifact: ${{ matrix.platform.target_arch }}.status
+        --lockfile 'dpkg-status:./${{ matrix.platform.target_arch }}.status
         --results-file-name ${{ matrix.platform.target_arch }}.sarif
     permissions:
       contents: read
@@ -101,7 +108,7 @@ jobs:
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
-          path: ./digests/
+          path: /tmp/digests/
           pattern: digests-*
           merge-multiple: true
       - name: Set up Docker Buildx
