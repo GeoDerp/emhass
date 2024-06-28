@@ -65,7 +65,7 @@ jobs:
             --output=${{ inputs.results-file-name }}
             --new=results.json
             --gh-annotations=false
-            --fail-on-vuln=${{ inputs.fail-on-vuln }}        
+            --fail-on-vuln=true 
       # Upload the results to GitHub's code scanning dashboard.
       - name: "Upload to code-scanning"
         if: "${{ !cancelled() }}"
