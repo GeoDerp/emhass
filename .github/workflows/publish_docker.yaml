@@ -63,6 +63,7 @@ jobs:
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
+      # Extract a list of the installed Debian packages, export as artifact for vulnerability scanning with OSV
       - name: Export Debian Package List
         run: docker run --rm --entrypoint cat /var/lib/dpkg/status  ${{ steps.build.outputs.digest }} /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
       - name: Upload digest
@@ -85,7 +86,7 @@ jobs:
           {target_arch: armhf},
           {target_arch: aarch64}
         ]
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.7.1"
+    uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.8.2-beta"
     with:
       scan-args: |-
         --recursive
