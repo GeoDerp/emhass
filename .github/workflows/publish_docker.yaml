@@ -56,23 +56,23 @@ jobs:
           mkdir -p /tmp/digests/
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
-      - name: Upload digest
-        uses: actions/upload-artifact@v4
-        with:
-          name: digests-${{ matrix.platform.target_arch }}
-          path: /tmp/digests/*
-          if-no-files-found: error
-          retention-days: 1
-      # Extract a list of the installed Debian packages, export as artifact for vulnerability scanning with OSV
-      - name: Export Debian Package List
-        run: docker run --rm --entrypoint cat /var/lib/dpkg/status  ${{ steps.build.outputs.digest }} /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
-      - name: Upload digest
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.platform.target_arch }}.status
-          path: ./
-          if-no-files-found: error
-          retention-days: 1
+      # - name: Upload digest
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: digests-${{ matrix.platform.target_arch }}
+      #     path: /tmp/digests/*
+      #     if-no-files-found: error
+      #     retention-days: 1
+      # # Extract a list of the installed Debian packages, export as artifact for vulnerability scanning with OSV
+      # - name: Export Debian Package List
+      #   run: docker run --rm --entrypoint cat /var/lib/dpkg/status  ${{ steps.build.outputs.digest }} /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
+      # - name: Upload digest
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ matrix.platform.target_arch }}.status
+      #     path: ./
+      #     if-no-files-found: error
+      #     retention-days: 1
 
   # Google OSV-Scanner  
   osv-scan:
@@ -92,12 +92,24 @@ jobs:
         --recursive
         --skip-git
         ./
-        --download-artifact: ${{ matrix.platform.target_arch }}.status
+        --download-artifact: digests-${{ matrix.platform.target_arch }}.zip
+        --docker: digests-${{ matrix.platform.target_arch }}
         --lockfile 'dpkg-status:./${{ matrix.platform.target_arch }}.status
         --results-file-name ${{ matrix.platform.target_arch }}.sarif
     permissions:
       contents: read
       security-events: write       
+    # with:
+    #   scan-args: |-
+    #     --recursive
+    #     --skip-git
+    #     ./
+    #     --download-artifact: ${{ matrix.platform.target_arch }}.status
+    #     --lockfile 'dpkg-status:./${{ matrix.platform.target_arch }}.status
+    #     --results-file-name ${{ matrix.platform.target_arch }}.sarif
+    # permissions:
+    #   contents: read
+    #   security-events: write       
   
   merge:
     if: always()
