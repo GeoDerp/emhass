@@ -90,7 +90,7 @@ jobs:
     with:
       download-artifact: digests-${{ matrix.platform.target_arch }}
       scan-args: |-
-        --docker: digests-${{ matrix.platform.target_arch }}
+        --docker digests-${{ matrix.platform.target_arch }}
         --recursive
         --skip-git
         ./
