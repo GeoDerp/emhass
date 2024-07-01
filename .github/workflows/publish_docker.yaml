@@ -88,11 +88,11 @@ jobs:
         ]
     uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.8.2-beta"
     with:
+      download-artifact: digests-${{ matrix.platform.target_arch }}
       scan-args: |-
         --recursive
         --skip-git
         ./
-        --download-artifact: digests-${{ matrix.platform.target_arch }}.zip
         --docker: digests-${{ matrix.platform.target_arch }}
         --lockfile 'dpkg-status:./${{ matrix.platform.target_arch }}.status
         --results-file-name ${{ matrix.platform.target_arch }}.sarif
