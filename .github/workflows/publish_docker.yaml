@@ -17,9 +17,9 @@ jobs:
       matrix:
         platform: [
           {buildx: linux/amd64, target_arch: amd64, os_version: debian},
-          # {buildx: linux/arm/v7, target_arch: armv7, os_version: debian},
-          # {buildx: linux/arm/v7, target_arch: armhf, os_version: raspbian},
-          # {buildx: linux/arm64,  target_arch: aarch64, os_version: debian}
+          {buildx: linux/arm/v7, target_arch: armv7, os_version: debian},
+          {buildx: linux/arm/v7, target_arch: armhf, os_version: raspbian},
+          {buildx: linux/arm64,  target_arch: aarch64, os_version: debian}
         ]
     steps:
       - name: Checkout the repository
@@ -63,16 +63,16 @@ jobs:
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
-      # # Extract a list of the installed Debian packages, export as artifact for vulnerability scanning with OSV
-      # - name: Export Debian Package List
-      #   run: docker run --rm --entrypoint cat /var/lib/dpkg/status  ${{ steps.build.outputs.digest }} /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
-      # - name: Upload digest
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ${{ matrix.platform.target_arch }}.status
-      #     path: ./
-      #     if-no-files-found: error
-      #     retention-days: 1
+      # Extract a list of the installed Debian packages, export as artifact for vulnerability scanning with OSV
+      - name: Export Debian Package List
+        run: docker run --rm --entrypoint cat /var/lib/dpkg/status  ${{ steps.build.outputs.digest }} /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.target_arch }}.status
+          path: ./
+          if-no-files-found: error
+          retention-days: 1
 
   # Google OSV-Scanner  
   osv-scan:
@@ -82,15 +82,15 @@ jobs:
       matrix:
         platform: [
           {target_arch: amd64},
-          # {target_arch: armv7},
-          # {target_arch: armhf},
-          # {target_arch: aarch64}
+          {target_arch: armv7},
+          {target_arch: armhf},
+          {target_arch: aarch64}
         ]
     uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.8.2-beta"
     with:
       download-artifact: digests-${{ matrix.platform.target_arch }}
       scan-args: |-
-        --docker digests-${{ matrix.platform.target_arch }}
+        --lockfile 'dpkg-status:./${{ matrix.platform.target_arch }}.status'
         --recursive
         --skip-git
         ./
