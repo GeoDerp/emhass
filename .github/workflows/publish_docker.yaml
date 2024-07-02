@@ -51,6 +51,7 @@ jobs:
             os_version=${{ matrix.platform.os_version }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/emhass-docker-standalone,push-by-digest=true,name-canonical=true,push=true
+          load: true
       - name: Export digest
         run: |
           mkdir -p /tmp/digests/
@@ -65,7 +66,7 @@ jobs:
           retention-days: 1
       # Extract a list of the installed Debian packages, export as artifact for vulnerability scanning with OSV
       - name: Export Debian Package List
-        run: docker run --rm --entrypoint '/bin/cat' $(echo ${{ steps.build.outputs.digest }} | cut -c 8- ) /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
+        run: docker run --rm --entrypoint '/bin/cat' ${{ steps.build.outputs.digest }} /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
