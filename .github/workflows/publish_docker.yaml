@@ -65,7 +65,7 @@ jobs:
           retention-days: 1
       # Extract a list of the installed Debian packages, export as artifact for vulnerability scanning with OSV
       - name: Export Debian Package List
-        run: docker run --rm --entrypoint '/bin/cat' $(echo ${{ steps.build.outputs.digest }} | sed 's/'^sha256:'/g/' ) /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
+        run: docker run --rm --entrypoint '/bin/cat' $(echo ${{ steps.build.outputs.digest }} | tr -d 'sha256:') /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
