@@ -50,7 +50,9 @@ jobs:
             TARGETARCH=${{ matrix.platform.target_arch }}
             os_version=${{ matrix.platform.os_version }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/emhass-docker-standalone,push-by-digest=true,name-canonical=true,push=true,load=true 
+          outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/emhass-docker-standalone,push-by-digest=true,name-canonical=true
+          push: true
+          load: true 
       - name: Export digest
         run: |
           mkdir -p /tmp/digests
