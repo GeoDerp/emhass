@@ -17,9 +17,9 @@ jobs:
       matrix:
         platform: [
           {buildx: linux/amd64, target_arch: amd64, os_version: debian},
-          {buildx: linux/arm/v7, target_arch: armv7, os_version: debian},
-          {buildx: linux/arm/v7, target_arch: armhf, os_version: raspbian},
-          {buildx: linux/arm64,  target_arch: aarch64, os_version: debian}
+          {buildx: linux/arm/v7, target_arch: armv7, os_version: debian}
+          # {buildx: linux/arm/v7, target_arch: armhf, os_version: raspbian},
+          # {buildx: linux/arm64,  target_arch: aarch64, os_version: debian}
         ]
     steps:
       - name: Checkout the repository
@@ -54,7 +54,7 @@ jobs:
           load: true
       - name: Export digest
         run: |
-          mkdir -p /tmp/digests/
+          mkdir -p /tmp/digests
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
       - name: Upload digest
@@ -83,9 +83,9 @@ jobs:
       matrix:
         platform: [
           {target_arch: amd64},
-          {target_arch: armv7},
-          {target_arch: armhf},
-          {target_arch: aarch64}
+          {target_arch: armv7}
+          # {target_arch: armhf},
+          # {target_arch: aarch64}
         ]
     uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.8.5-beta"
     with:
@@ -110,7 +110,7 @@ jobs:
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
-          path: /tmp/digests/
+          path: /tmp/digests
           pattern: digests-*
           merge-multiple: true
       - name: Set up Docker Buildx
