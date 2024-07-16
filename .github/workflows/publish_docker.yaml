@@ -39,7 +39,27 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push by digest
+      - name: Build Docker image and cache
+        id: cache
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: ${{ matrix.platform.buildx }}
+          build-args: |
+            TARGETARCH=${{ matrix.platform.target_arch }}
+            os_version=${{ matrix.platform.os_version }}
+          load: true
+      # Extract a list of the installed Debian packages, export as artifact for vulnerability scanning with OSV
+      - name: Export Debian package List
+        run: docker run --rm --entrypoint '/bin/cat' ${{ steps.cache.outputs.imageid }} /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
+      - name: Upload Package List
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.target_arch }}.status
+          path: ./${{ matrix.platform.target_arch }}.status
+          if-no-files-found: error
+          retention-days: 1
+      - name: Build and push Docker image by digest
         id: build
         uses: docker/build-push-action@v5
         with:
@@ -64,18 +84,6 @@ jobs:
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
-      # Extract a list of the installed Debian packages, export as artifact for vulnerability scanning with OSV
-      - name: Export Debian Package List
-        run: docker run --rm --entrypoint '/bin/cat' ${{ secrets.DOCKERHUB_USERNAME }}/emhass-docker-standalone@${{ steps.build.outputs.digest }} /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
-      - name: Upload digest
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.platform.target_arch }}.status
-          path: ./${{ matrix.platform.target_arch }}.status
-          if-no-files-found: error
-          retention-days: 1
-
-
 
   # Google OSV-Scanner  
   osv-scan:
