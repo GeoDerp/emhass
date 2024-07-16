@@ -6,8 +6,8 @@ on:
     types: [published]
   workflow_dispatch:
 
-# permissions:
-#   contents: read
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -96,9 +96,9 @@ jobs:
         --recursive
         --skip-git
         ./
-    # permissions:
-    #   contents: read
-    #   security-events: write
+    permissions:
+      contents: read
+      security-events: write
   
   merge:
     if: always()
@@ -136,3 +136,7 @@ jobs:
       - name: Inspect image
         run: |
           docker buildx imagetools inspect ${{ secrets.DOCKERHUB_USERNAME }}/emhass-docker-standalone:${{ steps.meta.outputs.version }}
+    permissions:
+      contents: read
+      security-events: write
+  
