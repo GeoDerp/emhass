@@ -49,16 +49,20 @@ jobs:
             TARGETARCH=${{ matrix.platform.target_arch }}
             os_version=${{ matrix.platform.os_version }}
           load: true
+      
       # Extract a list of the installed Debian packages, export as artifact for vulnerability scanning with OSV
-      - name: Export Debian package List
-        run: docker run --rm --entrypoint '/bin/cat' ${{ steps.cache.outputs.imageid }} /var/lib/dpkg/status >> ${{ matrix.platform.target_arch }}.status
-      - name: Upload Package List
+      - name: Export Debian package list
+        run: mkdir OSV && docker run --rm --entrypoint '/bin/cat' ${{ steps.cache.outputs.imageid }} /var/lib/dpkg/status >> ./OSV/${{ matrix.platform.target_arch }}.status
+      - name: Export Python package list
+        run: docker run --rm --entrypoint '/usr/bin/pip3' ${{ steps.cache.outputs.imageid }} freeze >> ./OSV/${{ matrix.platform.target_arch }}-requirements.txt
+      - name: Upload Python package list
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform.target_arch }}.status
-          path: ./${{ matrix.platform.target_arch }}.status
+          name: ${{ matrix.platform.target_arch }}-packages
+          path: ./OSV/*
           if-no-files-found: error
           retention-days: 1
+      
       - name: Build and push Docker image by digest
         id: build
         uses: docker/build-push-action@v5
@@ -77,7 +81,7 @@ jobs:
           mkdir -p /tmp/digests
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
-      - name: Upload digest
+      - name: Upload digestW
         uses: actions/upload-artifact@v4
         with:
           name: digests-${{ matrix.platform.target_arch }}
@@ -97,12 +101,13 @@ jobs:
           # {target_arch: armhf},
           # {target_arch: aarch64}
         ]
-    uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.8.6-beta"
+    uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.8.7-beta"
     with:
-      download-artifact: "${{ matrix.platform.target_arch }}.status"
+      download-artifact: "${{ matrix.platform.target_arch }}-packages"
       results-file-name: "${{ matrix.platform.target_arch }}.sarif"
       scan-args: |-
         --lockfile 'dpkg-status:./${{ matrix.platform.target_arch }}.status'
+        --lockfile 'requirements.txt:./${{ matrix.platform.target_arch }}-requirements.txt'
         --recursive
         --skip-git
         ./
