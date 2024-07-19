@@ -55,7 +55,7 @@ jobs:
         run: mkdir OSV && docker run --rm --entrypoint '/bin/cat' ${{ steps.cache.outputs.imageid }} /var/lib/dpkg/status >> ./OSV/${{ matrix.platform.target_arch }}.status
       - name: Export Python package list
         run: docker run --rm --entrypoint '/usr/bin/pip3' ${{ steps.cache.outputs.imageid }} freeze >> ./OSV/${{ matrix.platform.target_arch }}-requirements.txt
-      - name: Upload Python package list
+      - name: Upload package list as digest
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform.target_arch }}-packages
@@ -81,7 +81,7 @@ jobs:
           mkdir -p /tmp/digests
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
-      - name: Upload digestW
+      - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
           name: digests-${{ matrix.platform.target_arch }}
@@ -105,6 +105,7 @@ jobs:
     with:
       download-artifact: "${{ matrix.platform.target_arch }}-packages"
       results-file-name: "${{ matrix.platform.target_arch }}.sarif"
+      security-category: "${{ matrix.platform.target_arch }}-OSV-Scanner"
       scan-args: |-
         --lockfile 'dpkg-status:./${{ matrix.platform.target_arch }}.status'
         --lockfile 'requirements.txt:./${{ matrix.platform.target_arch }}-requirements.txt'
