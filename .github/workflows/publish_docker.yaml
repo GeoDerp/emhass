@@ -106,9 +106,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: "${{ matrix.platform.target_arch }}-packages"
-          path: "./"
+          path: "/tmp/packages/"
       - name: Create manifest list and push
-        working-directory: ./
+        working-directory: /tmp/packages/
         run: |
           ls -R         
 
@@ -127,8 +127,8 @@ jobs:
     uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.8.7-beta"
     with:
       download-artifact-directory: "/tmp/digests/"
-      download-artifact: "/tmp/digests/${{ matrix.platform.target_arch }}-packages"
-      results-file-name: "/tmp/digests/${{ matrix.platform.target_arch }}.sarif"
+      download-artifact: "/tmp/packages/${{ matrix.platform.target_arch }}-packages"
+      results-file-name: "/tmp/packages/${{ matrix.platform.target_arch }}.sarif"
       security-category: "${{ matrix.platform.target_arch }}-OSV-Scanner"
       scan-args: |-
         --lockfile 'dpkg-status:./${{ matrix.platform.target_arch }}.status'
