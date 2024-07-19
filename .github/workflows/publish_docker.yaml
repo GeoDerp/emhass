@@ -105,13 +105,12 @@ jobs:
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
-          path: /tmp/digests
-          pattern: digests-*
-          merge-multiple: true     
+          name: "${{ matrix.platform.target_arch }}-packages"
+          path: "./"
       - name: Create manifest list and push
-        working-directory: /tmp/digests
+        working-directory: ./
         run: |
-          ls ./          
+          ls -R         
 
   # Google OSV-Scanner  
   osv-scan:
