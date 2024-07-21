@@ -87,30 +87,7 @@ jobs:
           name: digests-${{ matrix.platform.target_arch }}
           path: /tmp/digests/*
           if-no-files-found: error
-          retention-days: 1
-  test:
-    if: always()
-    runs-on: ubuntu-latest
-    needs:
-      - build
-    strategy:
-          matrix:
-            platform: [
-              {target_arch: amd64},
-              {target_arch: armv7}
-              # {target_arch: armhf},
-              # {target_arch: aarch64}
-            ]
-    steps:
-      - name: Download digests
-        uses: actions/download-artifact@v4
-        with:
-          name: "${{ matrix.platform.target_arch }}-packages"
-          path: "/tmp/packages/"
-      - name: Create manifest list and push
-        working-directory: /tmp/packages/
-        run: |
-          ls -R         
+          retention-days: 1        
 
   # Google OSV-Scanner  
   osv-scan:
@@ -126,13 +103,13 @@ jobs:
         ]
     uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.8.7-beta"
     with:
-      download-artifact-directory: "/tmp/digests/"
+      download-artifact-directory: "./"
       download-artifact: "${{ matrix.platform.target_arch }}-packages"
       results-file-name: "${{ matrix.platform.target_arch }}.sarif"
       security-category: "${{ matrix.platform.target_arch }}-OSV-Scanner"
       scan-args: |-
-        --lockfile 'dpkg-status:/tmp/packages/${{ matrix.platform.target_arch }}.status'
-        --lockfile 'requirements.txt:/tmp/packages/${{ matrix.platform.target_arch }}-requirements.txt'
+        --lockfile 'dpkg-status:./${{ matrix.platform.target_arch }}.status'
+        --lockfile 'requirements.txt:./matrix.platform.target_arch }}-requirements.txt'
         --recursive
         --skip-git
         ./
