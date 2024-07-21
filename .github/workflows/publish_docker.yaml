@@ -117,6 +117,7 @@ jobs:
         ./
     permissions:
       security-events: write
+      contents: write
   
   merge:
     if: always()
