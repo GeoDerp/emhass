@@ -108,8 +108,8 @@ jobs:
       results-file-name: "${{ matrix.platform.target_arch }}.sarif"
       security-category: "${{ matrix.platform.target_arch }}-OSV-Scanner"
       scan-args: |-
-        --lockfile 'dpkg-status:./emhass/${{ matrix.platform.target_arch }}.status'
-        --lockfile 'requirements.txt:./emhass/${{matrix.platform.target_arch }}-requirements.txt'
+        --lockfile 'dpkg-status:./${{ matrix.platform.target_arch }}-packages/${{ matrix.platform.target_arch }}.status'
+        --lockfile 'requirements.txt:./${{ matrix.platform.target_arch }}-packages/${{matrix.platform.target_arch }}-requirements.txt'
         --recursive
         --skip-git
         ./
