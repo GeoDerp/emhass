@@ -114,11 +114,8 @@ jobs:
         --skip-git
         ./
     permissions:
-      contents: read
       security-events: write
   
-
-
   merge:
     if: always()
     runs-on: ubuntu-latest
