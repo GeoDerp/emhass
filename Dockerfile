@@ -12,7 +12,7 @@ FROM ghcr.io/home-assistant/$TARGETARCH-base-$os_version:bookworm AS base
 
 #check if TARGETARCH was passed by build-arg
 ARG TARGETARCH
-ENV TARGETARCH=${TARGETARCH:?}
+ENV TARGETARCH ${TARGETARCH:?}
 
 WORKDIR /app
 COPY requirements.txt /app/
