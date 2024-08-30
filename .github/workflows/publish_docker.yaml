@@ -77,6 +77,11 @@ jobs:
   merge:
     if: always()
     runs-on: ubuntu-latest
+      permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     needs:
       - build
     steps:
