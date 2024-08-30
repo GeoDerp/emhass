@@ -31,7 +31,7 @@ jobs:
     # Pull git repo and build each architecture image separately (with QEMU and Buildx)
       - name: lowercase repo
         run: |
-          echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY ,,}" >>${GITHUB_ENV}
+          echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
       - name: Checkout the repository
         uses: actions/checkout@v4
       - name: Set up QEMU
@@ -82,7 +82,7 @@ jobs:
     steps:
       - name: lowercase repo  
         run: |
-          echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY ,,}" >>${GITHUB_ENV}
+          echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
