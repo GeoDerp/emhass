@@ -54,7 +54,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: ${{ matrix.platform.buildx }}
+          platforms: linux/${{ matrix.platform.target_arch }}
           build-args: |
             TARGETARCH=${{ matrix.platform.target_arch }}
             os_version=${{ matrix.platform.os_version }}
@@ -121,4 +121,3 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER}}
           subject-digest: ${{ steps.meta.outputs.version }}
           push-to-registry: true
-      
