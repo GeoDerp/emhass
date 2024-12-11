@@ -99,25 +99,25 @@ jobs:
       matrix:
         platform: [
           {target_arch: amd64},
-          #{target_arch: armv7}
-          # {target_arch: armhf},
-          # {target_arch: aarch64}
+          {target_arch: armv7},
+          {target_arch: armhf},
+          {target_arch: aarch64}
         ]
-    uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.9.1-beta"
+    uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.9.4-beta"
     with:
-      download-artifact-directory: "./"
       download-artifact: "${{ matrix.platform.target_arch }}-packages"
       results-file-name: "${{ matrix.platform.target_arch }}.sarif"
       security-category: "${{ matrix.platform.target_arch }}-OSV-Scanner"
       scan-args: |-
-        --lockfile='dpkg-status:./${{ matrix.platform.target_arch }}.status'
-        --lockfile='requirements.txt:./${{matrix.platform.target_arch }}-requirements.txt'
+        --lockfile=dpkg-status:./${{ matrix.platform.target_arch }}.status
+        --lockfile=requirements.txt:./${{matrix.platform.target_arch }}-requirements.txt
         --recursive
         --skip-git
         ./
     permissions:
       security-events: write
-      contents: write
+      contents: read
+      actions: read
   
   merge:
     if: always()
@@ -158,4 +158,3 @@ jobs:
     permissions:
       contents: read
       security-events: write
-  
