@@ -10,8 +10,9 @@ on:
 
 
 permissions:
-  contents: read 
-    
+  actions: read
+  security-events: write
+  contents: read
 
 jobs:
   build:
@@ -39,10 +40,9 @@ jobs:
           context: .
           platforms: ${{ matrix.platform.buildx }}
           build-args: |
-            build_version=standalone
             TARGETARCH=${{ matrix.platform.target_arch }}
             os_version=${{ matrix.platform.os_version }}
-          tags: emhass/standalone-test
+          tags: emhass
           load: true
       - name: Test #Assume Docker fail with FileNotFound secrets_emhass.yaml error
         run: docker run --rm -it emhass/standalone-test | grep -q secrets_emhass.yaml && echo 0 || echo 1             
