@@ -13,7 +13,7 @@ permissions:
 jobs:
   # Google OSV-Scanner  
   scan-pr:
-    uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.9.4-beta"
+    uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v0.0.1"
     with:
       scan-args: |-
         --recursive
