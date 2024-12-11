@@ -103,7 +103,7 @@ jobs:
           # {target_arch: armhf},
           # {target_arch: aarch64}
         ]
-    uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.9.0-beta"
+    uses: "GeoDerp/osv-scanner/.github/workflows/osv-scanner-reusable.yml@v1.9.2-beta"
     with:
       download-artifact-directory: "./"
       download-artifact: "${{ matrix.platform.target_arch }}-packages"
