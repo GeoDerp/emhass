@@ -110,8 +110,8 @@ jobs:
       results-file-name: "${{ matrix.platform.target_arch }}.sarif"
       security-category: "${{ matrix.platform.target_arch }}-OSV-Scanner"
       scan-args: |-
-        --lockfile='dpkg-status:./${{ matrix.platform.target_arch }}.status'
-        --lockfile='requirements.txt:./${{matrix.platform.target_arch }}-requirements.txt'
+        --lockfile='dpkg-status:/github/workspace/${{ matrix.platform.target_arch }}.status'
+        --lockfile='requirements.txt:/github/workspace/${{matrix.platform.target_arch }}-requirements.txt'
         --recursive
         --skip-git
         ./
